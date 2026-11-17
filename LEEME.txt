@@ -1,0 +1,55 @@
+DELICIAS 09 — Guardado, acceso móvil y reportes por fecha
+
+ESTADO
+Cambios preparados sobre main cf23b680a692279219d729ea4999e589d8ace6fd.
+No se modificó la página publicada ni se escribieron ventas en Firebase real.
+La integración de GitHub devolvió 403 al intentar crear una rama de revisión.
+
+QUÉ CAMBIA
+1. Guardado local persistente con metadatos de pendientes, recuperación al recargar,
+   reintentos automáticos y botón Reintentar. La nube solo se marca sincronizada
+   después de una confirmación del servidor. Las escrituras usan una transacción
+   para combinar registros de otros equipos. Un fallo del respaldo local impide
+   confirmar el cobro y conserva el carrito.
+2. Acceso móvil con cabecera compacta, tres perfiles en una fila, menos texto,
+   nombre sin partir y botón accesible para borrar el último dígito.
+3. Hoy, esta semana (lunes hasta hoy), este mes (hasta hoy), todo el historial y
+   rango personalizado inclusivo. Fechas según República Dominicana. El período
+   se comparte entre historial, totales, transferencias, turnos y CSV.
+   El CSV excluye anuladas, conserva acentos y escapa comillas.
+   El monitor de caja actual y los encargos pendientes siguen mostrando todos los
+   períodos, con etiquetas explícitas. El historial puede mostrar anuladas para auditoría.
+
+CÓMO APLICAR
+1. Desde la app actual descarga un Respaldo (JSON) como copia de seguridad.
+2. En el repositorio DELICIAS09 revisa y sube index.html y sw.js de este paquete
+   reemplazando los de la raíz. icon.svg y manifest.json se incluyen sin cambios.
+   Preferiblemente usa una rama de prueba antes de incorporar los cambios a main.
+3. Tras publicar, recarga la página. El service worker pasa de v3 a v4.
+   No borres los datos del navegador: allí pueden existir ventas pendientes.
+
+VALIDACIÓN REALIZADA
+10 pruebas automáticas con almacenamiento y transacciones simulados:
+migración, pendientes tras recarga, desconexión, reintento, ventas de otro equipo,
+rechazo de escritura, edición durante guardado, almacenamiento lleno, límites de
+fecha/zona horaria, anulaciones y coincidencia entre panel y CSV.
+Para ejecutarlas: node tests/verify.cjs
+El archivo JavaScript también pasó la comprobación de sintaxis de Node.
+
+COMPROBACIONES PENDIENTES ANTES DE PUBLICAR
+La vista previa del navegador fue bloqueada por denegación de acceso al servidor
+local. Falta confirmar visualmente el acceso en celular (390 y 320 px), el cambio
+de perfiles y los campos de fecha. Las pruebas automáticas no sustituyen esta revisión.
+En un proyecto Firebase de prueba verifica una venta online, otra offline, recarga,
+reconexión y cambio desde dos equipos. Confirma que el indicador cambia solo tras
+guardar y que los totales del rango coinciden con el CSV. No se probó Firebase real.
+
+ALCANCE Y LÍMITES
+Se conserva el documento único y el formato de datos actuales, por compatibilidad.
+Las transacciones combinan ventas y registros; no convierten el sistema en un libro
+contable distribuido ni resuelven toda edición simultánea de menú, ajustes o turnos.
+La numeración existente de facturas aún puede coincidir si dos equipos venden al
+mismo tiempo o sin conexión; los ID de nuevas ventas sí son únicos.
+El historial sigue sujeto al límite de tamaño del documento de Firestore; una
+migración a documentos por venta queda fuera de esta entrega.
+Los respaldos locales dependen del navegador y su espacio disponible.
